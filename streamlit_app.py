@@ -3,6 +3,7 @@ import httpx
 import json
 import yfinance as yf
 import matplotlib.pyplot as plt
+import os
 from datetime import date, timedelta
 
 # Set up Streamlit page config (no theme argument)
@@ -45,8 +46,11 @@ def fetch_trade(ticker, trade_date, deep_think_model=None, debate_rounds=None, t
         if debate_rounds:
             params["debate_rounds"] = debate_rounds
         
+        # Backend URL configuration - defaults to Railway, fallback to Render
+        backend_url = os.getenv("BACKEND_URL", "https://tradingagents-backend-production.up.railway.app")
+        
         resp = httpx.get(
-            "https://tradingagents2-1.onrender.com/trade",
+            f"{backend_url}/trade",
             params=params,
             timeout=timeout
         )
