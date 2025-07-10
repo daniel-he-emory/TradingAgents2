@@ -28,41 +28,37 @@ After you have successfully executed all these steps, you can confirm by saying 
 # Current Project Context
 
 ## Objective
-The primary goal was to debug and fix the 500 Internal Server Error on the deployed TradingAgents backend application on Render, then deploy the Streamlit frontend to create a complete web-based trading analysis platform with seamless end-to-end functionality.
+The primary goal was to debug startup script execution errors caused by Windows line ending issues and configure the TradingAgents project to prevent these errors in future development sessions.
 
 ## Key Files
-* `/mnt/c/Users/ddani/Projects/TradingAgents/AI_CONTEXT.md`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/.env`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/README.md`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/tradingagents/default_config.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/app.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/streamlit_app.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile.streamlit`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/requirements.txt`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/.gitignore`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/startup.sh` - Development environment startup script
+* `/mnt/c/Users/ddani/Projects/TradingAgents/.gitattributes` - Git line ending configuration file
+* `/mnt/c/Users/ddani/Projects/TradingAgents/.gitignore` - Updated to include venv/ directory
+* `/mnt/c/Users/ddani/Projects/TradingAgents/AI_CONTEXT.md` - Project context and documentation
+* `/mnt/c/Users/ddani/Projects/TradingAgents/.env` - Environment variables configuration
+* `/mnt/c/Users/ddani/Projects/TradingAgents/app.py` - FastAPI backend application
+* `/mnt/c/Users/ddani/Projects/TradingAgents/tradingagents/default_config.py` - Default configuration settings
 
 ## Key Decisions
-* **Backend Error Resolution**: Fixed the 500 Internal Server Error by replacing hardcoded data directory path (`/Users/yluo/Documents/Code/ScAI/FR1-data`) with relative path (`./data`) in `default_config.py`
-* **Security Enhancement**: Removed exposed API keys from `.env` file and created template with placeholder values for secure deployment
-* **Error Handling**: Added comprehensive error handling to `app.py` for both trading graph initialization and analysis execution failures
-* **Environment Variables**: Made all configuration settings environment-variable driven for better deployment flexibility
-* **Frontend Deployment**: Created `Dockerfile.streamlit` for deploying the Streamlit web interface as a separate service
-* **API Integration**: Confirmed Streamlit app already configured to connect to deployed backend API at `https://tradingagents1.onrender.com/trade`
-* **Data Directory**: Created `/data` directory and ensured proper path resolution for deployment environments
-* **Deployment Architecture**: Backend API and Streamlit frontend deployed as separate services on Render with automatic integration
+* **Line Ending Configuration**: Configured git globally with `core.autocrlf input` to automatically convert CRLF to LF on commit
+* **Git Attributes**: Created `.gitattributes` file to enforce LF line endings for shell scripts and text files across the project
+* **Virtual Environment Management**: Added `venv/` to `.gitignore` to prevent committing virtual environments
+* **Startup Script**: Fixed line ending issues in `startup.sh` and made it executable with proper permissions
+* **Cross-Platform Compatibility**: Established configuration to prevent Windows/WSL line ending issues in future development sessions
+* **Development Environment**: Created virtual environment with `python3 -m venv venv` for consistent dependency management
 
 ## Current Status
-The last completed task was pushing the `Dockerfile.streamlit` to the repository and providing detailed instructions for deploying the Streamlit frontend on Render. The backend API is successfully deployed and running without 500 errors. The immediate next step is to complete the frontend deployment on Render and test the full end-to-end application workflow.
+The last completed task was successfully pushing the line ending configuration changes to GitHub, including the `.gitattributes` file, updated `.gitignore`, and the fixed `startup.sh` script. All configuration is now in place to prevent line ending errors in future development sessions. The immediate next step would be to continue with any additional development tasks or deployment work.
 
 ## Constraints & Preferences
-* **AI Workflow**: Established workflow where user acts as Architect, Claude Code as Builder, and Cursor as Debugger/Fixer
-* **User Identity**: GitHub username is `daniel-he-emory`, email is `daniel.he@alumni.emory.edu`
-* **Context Preservation**: All AI assistants should maintain consistent context through the AI_CONTEXT.md file system
-* **Environment Variables**: All API keys and configuration stored in `.env` file with automatic loading - no manual setup required in new sessions
-* **Security**: Never commit API keys or secrets to version control; use environment variables and `.env` files
-* **Deployment Architecture**: Backend API and Streamlit frontend deployed as separate services on Render
+* **Cross-Platform Development**: Project must work consistently across Windows, WSL, and Unix environments
+* **Line Ending Handling**: All shell scripts and text files must use LF line endings enforced by git configuration
+* **Virtual Environment**: Use `venv/` for Python virtual environments, excluded from version control
+* **Git Configuration**: Global git settings configured to handle line ending conversion automatically
+* **Security**: Never commit API keys or virtual environments to version control
 * **Todo Management**: Use TodoWrite tool to track progress on multi-step tasks
+* **User Identity**: GitHub username is `daniel-he-emory`, email is `daniel.he@alumni.emory.edu`
+* **Repository**: `https://github.com/daniel-he-emory/TradingAgents2.git`
 
 ## Complete Application Setup & Usage Guide
 
@@ -101,7 +97,34 @@ ONLINE_TOOLS=true
 DATA_DIR=./data
 ```
 
-### Step 2: Local Development Options
+### Step 2: Development Environment Setup
+
+**Using the Startup Script:**
+```bash
+# Make sure startup script is executable and run it
+./startup.sh
+```
+
+The startup script will:
+- Check and activate virtual environment
+- Verify environment variables are configured
+- Display available commands and project status
+
+**Manual Setup:**
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate  # On Unix/WSL
+# or
+venv\Scripts\activate     # On Windows
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Step 3: Local Development Options
 
 **Option A: Run Complete Stack Locally**
 ```bash
@@ -133,7 +156,7 @@ result = graph.propagate("AAPL", "2024-01-15")
 print(result)
 ```
 
-### Step 3: Deployed Application Access
+### Step 4: Deployed Application Access
 
 **Backend API (Already Deployed)**
 - Health Check: `https://tradingagents1.onrender.com/health`
@@ -151,7 +174,7 @@ print(result)
    - Docker Context: `.`
 5. Deploy (no environment variables needed for frontend)
 
-### Step 4: Complete End-to-End Usage Workflow
+### Step 5: Complete End-to-End Usage Workflow
 
 **For Web Interface Users:**
 1. Visit the deployed Streamlit frontend URL (e.g., `https://tradingagents-frontend.onrender.com`)
@@ -180,7 +203,7 @@ print(result)
 2. Follow interactive prompts to select ticker, date, and settings
 3. View results in terminal
 
-### Step 5: Environment Variables for Render Deployment
+### Step 6: Environment Variables for Render Deployment
 
 **Backend Service (TradingAgents1) - Required Variables:**
 ```
@@ -204,6 +227,7 @@ The frontend automatically connects to the backend API URL hardcoded in `streaml
 * **Backend API**: ✅ Successfully deployed at `https://tradingagents1.onrender.com`
 * **Frontend**: 🔄 Ready to deploy using `Dockerfile.streamlit`
 * **Issues Resolved**: ✅ 500 Internal Server Error fixed by correcting hardcoded data directory path
+* **Line Ending Issues**: ✅ Fixed with git configuration and .gitattributes
 * **Repository**: ✅ All files pushed to `https://github.com/daniel-he-emory/TradingAgents2.git`
 
 ### Testing the Complete Application
@@ -211,11 +235,20 @@ The frontend automatically connects to the backend API URL hardcoded in `streaml
 2. **API Test**: `curl "https://tradingagents1.onrender.com/trade?ticker=AAPL&date=2024-01-15"`
 3. **Frontend Test**: Visit deployed Streamlit URL and run analysis
 4. **Local Test**: Run `python app.py` and `streamlit run streamlit_app.py`
+5. **Startup Script Test**: Run `./startup.sh` to verify environment setup
 
 ## Git Configuration Notes
 * **Git User Config**: `git config --global user.name "daniel-he-emory"`
 * **Git Email**: `git config --global user.email "daniel.he@alumni.emory.edu"`
+* **Line Ending Handling**: `git config --global core.autocrlf input` - converts CRLF to LF automatically
+* **Git Attributes**: `.gitattributes` file enforces LF line endings for shell scripts and text files
 * **Credential Storage**: `git config --global credential.helper store` enables permanent credential storage
 * **Authentication**: Uses GitHub Personal Access Token (PAT) as password when prompted
 * **Repository**: Clean repository created at https://github.com/daniel-he-emory/TradingAgents2.git (no API key history)
 * **Security**: Original repository contained exposed OpenAI API key in commit history - migrated to clean repo
+
+## Development Environment Setup Issues Fixed
+* **Virtual Environment**: Created with `python3 -m venv venv` to resolve missing venv error
+* **Script Permissions**: Fixed with `chmod +x startup.sh` to make script executable
+* **Line Endings**: Fixed Windows CRLF issues with `sed -i 's/\r$//' startup.sh` and git configuration
+* **Cross-Platform**: Configured `.gitattributes` to prevent future line ending issues across different operating systems
