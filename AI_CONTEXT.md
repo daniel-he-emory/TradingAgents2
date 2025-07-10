@@ -28,48 +28,40 @@ After you have successfully executed all these steps, you can confirm by saying 
 # Current Project Context
 
 ## Objective
-The primary goal was to create a fully automated, zero-friction development environment for the TradingAgents multi-agent framework with persistent configuration, automatic startup, and comprehensive AI assistant context preservation.
+The primary goal was to debug and fix the 500 Internal Server Error on the deployed TradingAgents backend application on Render, then deploy the Streamlit frontend to create a complete web-based trading analysis platform.
 
 ## Key Files
 * `/mnt/c/Users/ddani/Projects/TradingAgents/AI_CONTEXT.md`
 * `/mnt/c/Users/ddani/Projects/TradingAgents/.env`
 * `/mnt/c/Users/ddani/Projects/TradingAgents/README.md`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/startup.sh`
-* `~/.bashrc` (shell configuration with automation)
-* `/mnt/c/Users/ddani/Projects/TradingAgents/docker-compose.yml`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile` (for the API service)
-* `/mnt/c/Users/ddani/Projects/TradingAgents/requirements.txt`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/requirements.in`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/streamlit_app.py`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/tradingagents/default_config.py`
 * `/mnt/c/Users/ddani/Projects/TradingAgents/app.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/cli/main.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/.dockerignore`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/streamlit_app.py`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile.streamlit`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/requirements.txt`
 * `/mnt/c/Users/ddani/Projects/TradingAgents/.gitignore`
 
 ## Key Decisions
-* **Context Management System**: Established a "save as" command that generates structured summaries and commits them to version control for consistency across AI assistants.
-* **Security Migration**: Created a new clean GitHub repository (TradingAgents2.git) after discovering exposed OpenAI API key in commit history.
-* **Environment Variables**: Configured secure storage of API keys in `.env` file with automatic loading via python-dotenv - no manual key entry required in new sessions.
-* **Complete API Configuration**: Set up both OpenAI and FinnHub API keys in `.env` file for persistent access.
-* **Full Shell Automation**: Configured ~/.bashrc for automatic virtual environment activation, project directory navigation, and startup script execution.
-* **Command Aliases**: Created convenient shortcuts (ta-cli, ta-api, ta-web, ta-test, ta-deps, ta-status, ta-push) for common operations.
-* **Startup Health Check**: Implemented startup.sh script that validates environment configuration and displays available commands.
-* **Documentation Enhancement**: Updated README.md to direct AI assistants to read AI_CONTEXT.md first for project understanding.
-* **Git Configuration**: Fully configured Git with user credentials, email, and credential helper for persistent authentication.
-* **Comprehensive Setup Documentation**: Added detailed environment setup requirements, prerequisites, and application entry points to AI_CONTEXT.md.
-* **Previous TradingAgents Decisions**: Native Docker Engine in WSL2, microservices architecture, Render for backend hosting, pip-tools for dependency management, and Gunicorn for production.
+* **Backend Error Resolution**: Fixed the 500 Internal Server Error by replacing hardcoded data directory path (`/Users/yluo/Documents/Code/ScAI/FR1-data`) with relative path (`./data`) in `default_config.py`
+* **Security Enhancement**: Removed exposed API keys from `.env` file and created template with placeholder values for secure deployment
+* **Error Handling**: Added comprehensive error handling to `app.py` for both trading graph initialization and analysis execution failures
+* **Environment Variables**: Made all configuration settings environment-variable driven for better deployment flexibility
+* **Frontend Deployment**: Created `Dockerfile.streamlit` for deploying the Streamlit web interface as a separate service
+* **API Integration**: Confirmed Streamlit app already configured to connect to deployed backend API at `https://tradingagents1.onrender.com/trade`
+* **Data Directory**: Created `/data` directory and ensured proper path resolution for deployment environments
 
 ## Current Status
-The last completed task was implementing comprehensive shell automation including auto-activation of virtual environment, automatic project directory navigation, command aliases, and startup health checking. The development environment is now completely zero-friction - opening a new terminal automatically sets up the entire development context. The application is ready to run with all required configurations in place. The immediate next step is to debug the 500 Internal Server Error occurring on the deployed backend application on Render.
+The last completed task was creating the `Dockerfile.streamlit` for frontend deployment and providing complete deployment instructions for Render. The backend API is now successfully deployed and running without 500 errors after fixing the hardcoded path issue. The immediate next step is to push the Dockerfile to the repository and deploy the Streamlit frontend on Render as a second web service.
 
 ## Constraints & Preferences
-* **AI Workflow**: Established workflow where user acts as Architect, Claude Code as Builder, and Cursor as Debugger/Fixer.
-* **User Identity**: GitHub username is `daniel-he-emory`, email is `daniel.he@alumni.emory.edu`.
-* **Context Preservation**: All AI assistants should maintain consistent context through the AI_CONTEXT.md file system.
-* **Environment Variables**: All API keys and configuration stored in `.env` file with automatic loading - no manual setup required in new sessions.
-* **Security**: Never commit API keys or secrets to version control; use environment variables and `.env` files.
-* **Zero-Friction Development**: Setup is designed to be completely automated with no manual steps required in new sessions.
-* **Command Shortcuts**: Use aliases (ta-cli, ta-api, ta-web, etc.) for quick access to common operations.
+* **AI Workflow**: Established workflow where user acts as Architect, Claude Code as Builder, and Cursor as Debugger/Fixer
+* **User Identity**: GitHub username is `daniel-he-emory`, email is `daniel.he@alumni.emory.edu`
+* **Context Preservation**: All AI assistants should maintain consistent context through the AI_CONTEXT.md file system
+* **Environment Variables**: All API keys and configuration stored in `.env` file with automatic loading - no manual setup required in new sessions
+* **Security**: Never commit API keys or secrets to version control; use environment variables and `.env` files
+* **Deployment Architecture**: Backend API and Streamlit frontend deployed as separate services on Render
+* **Todo Management**: Use TodoWrite tool to track progress on multi-step tasks
 
 ## Environment Setup Requirements
 
@@ -84,7 +76,7 @@ The last completed task was implementing comprehensive shell automation includin
 OPENAI_API_KEY=your_openai_api_key_here
 
 # FinnHub API Configuration  
-FINNHUB_API_KEY=d1bkmr9r01qsbpudktsgd1bkmr9r01qsbpudktt0
+FINNHUB_API_KEY=your_finnhub_api_key_here
 
 # LLM Provider Settings
 LLM_PROVIDER=openai
@@ -105,29 +97,23 @@ DATA_DIR=./data
 ```
 
 ### Prerequisites Before Running Application
-1. **Python Environment**: Python 3.10+ with virtual environment activated (automated)
-2. **Dependencies**: Run `pip install -r requirements.txt` or use alias `ta-deps`
+1. **Python Environment**: Python 3.10+ with virtual environment activated
+2. **Dependencies**: Run `pip install -r requirements.txt`
 3. **API Keys**: Both OpenAI and FinnHub API keys must be configured in `.env`
 4. **Environment Variables**: All required variables must be set in `.env` file
 5. **Data Directory**: Ensure `./data` directory exists or DATA_DIR points to valid location
 6. **Docker** (for containerized deployment): Docker Engine installed and running
 
-### Application Entry Points & Aliases
-* **CLI**: `ta-cli` or `python cli/main.py` - Interactive command-line interface
-* **API Server**: `ta-api` or `python app.py` - FastAPI backend server
-* **Streamlit Frontend**: `ta-web` or `streamlit run streamlit_app.py` - Web interface
-* **Tests**: `ta-test` or `python test_trading_agents_graph.py` - Run test suite
-* **Dependencies**: `ta-deps` or `pip install -r requirements.txt` - Install dependencies
-* **Git Status**: `ta-status` or `git status` - Check repository status
-* **Quick Push**: `ta-push` - Add, commit, and push changes
+### Application Entry Points
+* **CLI**: `python cli/main.py` - Interactive command-line interface
+* **API Server**: `python app.py` - FastAPI backend server
+* **Streamlit Frontend**: `streamlit run streamlit_app.py` - Web interface
 * **Direct Usage**: Import `tradingagents.graph.trading_graph.TradingAgentsGraph` for programmatic use
 
-### Automated Shell Configuration
-* **Virtual Environment**: Automatically activated on terminal startup
-* **Project Directory**: Automatically navigated to on terminal startup
-* **Startup Health Check**: Automatically runs startup.sh to validate environment
-* **Command Aliases**: All shortcuts automatically available
-* **No Manual Setup**: Zero manual steps required for new sessions
+### Deployment Status
+* **Backend API**: Successfully deployed at `https://tradingagents1.onrender.com`
+* **Frontend**: Ready to deploy using `Dockerfile.streamlit`
+* **Issues Resolved**: 500 Internal Server Error fixed by correcting hardcoded data directory path
 
 ## Git Configuration Notes
 * **Git User Config**: `git config --global user.name "daniel-he-emory"`
