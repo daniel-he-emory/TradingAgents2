@@ -31,6 +31,10 @@
 >
 > So we decided to fully open-source the framework. Looking forward to building impactful projects with you!
 
+## 🤖 AI Assistant Context
+
+**For AI assistants working on this project**: Please read the [AI_CONTEXT.md](AI_CONTEXT.md) file first to understand the project's current state, deployment status, and configuration details. This file contains essential information about the project's architecture, deployment decisions, and current issues that need addressing.
+
 <div align="center">
 <a href="https://www.star-history.com/#TauricResearch/TradingAgents&Date">
  <picture>
@@ -163,9 +167,10 @@ You will also need the FinnHub API for financial data. All of our code is implem
 export FINNHUB_API_KEY="d1bkmr9r01qsbpudktsgd1bkmr9r01qsbpudktt0"
 ```
 
-You will need the OpenAI API for all the agents.
+You will need the OpenAI API for all the agents. The API key is stored in the `.env` file:
 ```bash
-export OPENAI_API_KEY="your-openai-api-key-here"
+# The OpenAI API key is automatically loaded from .env file
+# No need to export manually - it's handled by python-dotenv
 ```
 
 ### CLI Usage

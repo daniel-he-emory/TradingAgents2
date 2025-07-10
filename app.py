@@ -24,7 +24,13 @@ def get_trading_graph():
     """Get or create the trading graph instance."""
     global trading_graph
     if trading_graph is None:
-        trading_graph = TradingAgentsGraph(config=DEFAULT_CONFIG)
+        try:
+            trading_graph = TradingAgentsGraph(config=DEFAULT_CONFIG)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Failed to initialize trading graph: {str(e)}"
+            )
     return trading_graph
 
 class DebateLog(BaseModel):
@@ -89,14 +95,24 @@ async def get_trade(
             datetime.strptime(date, '%Y-%m-%d')
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+        
+        # Get trading graph with error handling
         ta = get_trading_graph()
-        result = ta.propagate(
-            ticker,
-            date,
-            deep_think_model=deep_think_model,
-            quick_think_model=quick_think_model,
-            debate_rounds=debate_rounds,
-        )
+        
+        # Execute trading analysis with error handling
+        try:
+            result = ta.propagate(
+                ticker,
+                date,
+                deep_think_model=deep_think_model,
+                quick_think_model=quick_think_model,
+                debate_rounds=debate_rounds,
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Trading analysis failed: {str(e)}"
+            )
         
         # Create response using the extended result structure
         response = TradingResponse(

@@ -6,7 +6,7 @@ load_dotenv()
 
 DEFAULT_CONFIG = {
     "project_dir": os.path.abspath(os.path.join(os.path.dirname(__file__), ".")),
-    "data_dir": os.getenv("DATA_DIR", "/Users/yluo/Documents/Code/ScAI/FR1-data"),
+    "data_dir": os.getenv("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data")),
     "data_cache_dir": os.path.join(
         os.path.abspath(os.path.join(os.path.dirname(__file__), ".")),
         "dataflows/data_cache",
@@ -17,9 +17,9 @@ DEFAULT_CONFIG = {
     "quick_think_llm": os.getenv("QUICK_THINK_LLM", "gpt-4o"),
     "backend_url": os.getenv("BACKEND_URL", "https://api.openai.com/v1"),
     # Debate and discussion settings - minimal context
-    "max_debate_rounds": 1,
-    "max_risk_discuss_rounds": 0,
-    "max_recur_limit": 5,
+    "max_debate_rounds": int(os.getenv("MAX_DEBATE_ROUNDS", "1")),
+    "max_risk_discuss_rounds": int(os.getenv("MAX_RISK_DISCUSS_ROUNDS", "0")),
+    "max_recur_limit": int(os.getenv("MAX_RECUR_LIMIT", "5")),
     # Only market analyst is used
     "selected_analysts": ["market"],
     # Tool settings
