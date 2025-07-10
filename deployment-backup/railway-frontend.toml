@@ -1,0 +1,7 @@
+# Railway configuration for frontend service
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile.streamlit"
+
+[deploy]
+# Let Dockerfile.streamlit handle the start command

@@ -1,6 +1,8 @@
 from typing import Optional
 import datetime
 import typer
+from pathlib import Path
+from functools import wraps
 from rich.console import Console
 from rich.panel import Panel
 from rich.spinner import Spinner
@@ -17,22 +19,6 @@ from rich.tree import Tree
 from rich import box
 from rich.align import Align
 from rich.rule import Rule
-import os
-from pathlib import Path
-
-# Load environment variables from .env file
-from dotenv import load_dotenv
-
-# Get the project root directory (parent of cli directory)
-project_root = Path(__file__).parent.parent
-env_path = project_root / '.env'
-
-# Load .env file if it exists
-if env_path.exists():
-    load_dotenv(env_path)
-else:
-    # Fallback to current directory if .env not found in project root
-    load_dotenv()
 
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
@@ -113,7 +99,7 @@ class MessageBuffer:
             if content is not None:
                 latest_section = section
                 latest_content = content
-
+               
         if latest_section and latest_content:
             # Format the current section for display
             section_titles = {
@@ -354,10 +340,7 @@ def update_display(layout, spinner_text=None):
 
     # Add a footer to indicate if messages were truncated
     if len(all_messages) > max_messages:
-        # Note: Table doesn't have a footer attribute, so we'll add a row instead
-        messages_table.add_row(
-            "", 
-            "", 
+        messages_table.footer = (
             f"[dim]Showing last {max_messages} of {len(all_messages)} messages[/dim]"
         )
 
@@ -766,6 +749,53 @@ def run_analysis():
         [analyst.value for analyst in selections["analysts"]], config=config, debug=True
     )
 
+    # Create result directory
+    results_dir = Path(config["results_dir"]) / selections["ticker"] / selections["analysis_date"]
+    results_dir.mkdir(parents=True, exist_ok=True)
+    report_dir = results_dir / "reports"
+    report_dir.mkdir(parents=True, exist_ok=True)
+    log_file = results_dir / "message_tool.log"
+    log_file.touch(exist_ok=True)
+
+    def save_message_decorator(obj, func_name):
+        func = getattr(obj, func_name)
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            func(*args, **kwargs)
+            timestamp, message_type, content = obj.messages[-1]
+            content = content.replace("\n", " ")  # Replace newlines with spaces
+            with open(log_file, "a") as f:
+                f.write(f"{timestamp} [{message_type}] {content}\n")
+        return wrapper
+    
+    def save_tool_call_decorator(obj, func_name):
+        func = getattr(obj, func_name)
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            func(*args, **kwargs)
+            timestamp, tool_name, args = obj.tool_calls[-1]
+            args_str = ", ".join(f"{k}={v}" for k, v in args.items())
+            with open(log_file, "a") as f:
+                f.write(f"{timestamp} [Tool Call] {tool_name}({args_str})\n")
+        return wrapper
+
+    def save_report_section_decorator(obj, func_name):
+        func = getattr(obj, func_name)
+        @wraps(func)
+        def wrapper(section_name, content):
+            func(section_name, content)
+            if section_name in obj.report_sections and obj.report_sections[section_name] is not None:
+                content = obj.report_sections[section_name]
+                if content:
+                    file_name = f"{section_name}.md"
+                    with open(report_dir / file_name, "w") as f:
+                        f.write(content)
+        return wrapper
+
+    message_buffer.add_message = save_message_decorator(message_buffer, "add_message")
+    message_buffer.add_tool_call = save_tool_call_decorator(message_buffer, "add_tool_call")
+    message_buffer.update_report_section = save_report_section_decorator(message_buffer, "update_report_section")
+
     # Now start the display layout
     layout = create_layout()
 
@@ -827,7 +857,7 @@ def run_analysis():
                     msg_type = "System"
 
                 # Add message to buffer
-                message_buffer.add_message(msg_type, content)
+                message_buffer.add_message(msg_type, content)                
 
                 # If it's a tool call, add it to tool calls
                 if hasattr(last_message, "tool_calls"):
@@ -1063,82 +1093,7 @@ def run_analysis():
         # Display the complete final report
         display_complete_report(final_state)
 
-        # Save final decision to file
-        save_final_decision_to_file(selections["ticker"], selections["analysis_date"], final_state, decision)
-
         update_display(layout)
-
-
-def save_final_decision_to_file(ticker, analysis_date, final_state, decision):
-    """Save the final decision and complete report to a file."""
-    filename = f"report_{ticker}_{analysis_date}.txt"
-    
-    # Create the report content
-    report_content = []
-    report_content.append(f"TradingAgents Analysis Report")
-    report_content.append(f"Ticker: {ticker}")
-    report_content.append(f"Analysis Date: {analysis_date}")
-    report_content.append(f"Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    report_content.append("=" * 80)
-    report_content.append("")
-    
-    # Add the complete final report
-    if message_buffer.final_report:
-        report_content.append(message_buffer.final_report)
-    else:
-        # Fallback: construct report from final_state
-        if final_state.get("market_report"):
-            report_content.append("## Market Analysis")
-            report_content.append(final_state["market_report"])
-            report_content.append("")
-        
-        if final_state.get("sentiment_report"):
-            report_content.append("## Social Sentiment")
-            report_content.append(final_state["sentiment_report"])
-            report_content.append("")
-        
-        if final_state.get("news_report"):
-            report_content.append("## News Analysis")
-            report_content.append(final_state["news_report"])
-            report_content.append("")
-        
-        if final_state.get("fundamentals_report"):
-            report_content.append("## Fundamentals Analysis")
-            report_content.append(final_state["fundamentals_report"])
-            report_content.append("")
-        
-        if final_state.get("investment_debate_state"):
-            debate_state = final_state["investment_debate_state"]
-            if debate_state.get("judge_decision"):
-                report_content.append("## Research Team Decision")
-                report_content.append(debate_state["judge_decision"])
-                report_content.append("")
-        
-        if final_state.get("trader_investment_plan"):
-            report_content.append("## Trading Team Plan")
-            report_content.append(final_state["trader_investment_plan"])
-            report_content.append("")
-        
-        if final_state.get("risk_debate_state"):
-            risk_state = final_state["risk_debate_state"]
-            if risk_state.get("judge_decision"):
-                report_content.append("## Portfolio Management Decision")
-                report_content.append(risk_state["judge_decision"])
-                report_content.append("")
-    
-    # Add the final decision
-    report_content.append("=" * 80)
-    report_content.append("FINAL DECISION")
-    report_content.append("=" * 80)
-    report_content.append(str(decision))
-    
-    # Write to file
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(report_content))
-        console.print(f"[green]Report saved to: {filename}[/green]")
-    except Exception as e:
-        console.print(f"[red]Error saving report to {filename}: {e}[/red]")
 
 
 @app.command()

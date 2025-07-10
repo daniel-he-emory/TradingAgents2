@@ -1,0 +1,7 @@
+# Railway configuration for backend service
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Let Dockerfile handle the start command for FastAPI

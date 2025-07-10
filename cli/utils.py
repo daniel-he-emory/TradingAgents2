@@ -128,10 +128,10 @@ def select_shallow_thinking_agent(provider) -> str:
     # Define shallow thinking llm engine options with their corresponding model names
     SHALLOW_AGENT_OPTIONS = {
         "openai": [
-            ("GPT-4o - Standard model with solid capabilities (default)", "gpt-4o"),
             ("GPT-4o-mini - Fast and efficient for quick tasks", "gpt-4o-mini"),
             ("GPT-4.1-nano - Ultra-lightweight model for basic operations", "gpt-4.1-nano"),
             ("GPT-4.1-mini - Compact model with good performance", "gpt-4.1-mini"),
+            ("GPT-4o - Standard model with solid capabilities", "gpt-4o"),
         ],
         "anthropic": [
             ("Claude Haiku 3.5 - Fast inference and standard capabilities", "claude-3-5-haiku-latest"),
@@ -150,6 +150,7 @@ def select_shallow_thinking_agent(provider) -> str:
             ("google/gemini-2.0-flash-exp:free - Gemini Flash 2.0 offers a significantly faster time to first token", "google/gemini-2.0-flash-exp:free"),
         ],
         "ollama": [
+            ("llama3.1 local", "llama3.1"),
             ("llama3.2 local", "llama3.2"),
         ]
     }
@@ -185,9 +186,9 @@ def select_deep_thinking_agent(provider) -> str:
     # Define deep thinking llm engine options with their corresponding model names
     DEEP_AGENT_OPTIONS = {
         "openai": [
-            ("GPT-4o - Standard model with solid capabilities (default)", "gpt-4o"),
             ("GPT-4.1-nano - Ultra-lightweight model for basic operations", "gpt-4.1-nano"),
             ("GPT-4.1-mini - Compact model with good performance", "gpt-4.1-mini"),
+            ("GPT-4o - Standard model with solid capabilities", "gpt-4o"),
             ("o4-mini - Specialized reasoning model (compact)", "o4-mini"),
             ("o3-mini - Advanced reasoning model (lightweight)", "o3-mini"),
             ("o3 - Full advanced reasoning model", "o3"),
@@ -211,6 +212,7 @@ def select_deep_thinking_agent(provider) -> str:
             ("Deepseek - latest iteration of the flagship chat model family from the DeepSeek team.", "deepseek/deepseek-chat-v3-0324:free"),
         ],
         "ollama": [
+            ("llama3.1 local", "llama3.1"),
             ("qwen3", "qwen3"),
         ]
     }

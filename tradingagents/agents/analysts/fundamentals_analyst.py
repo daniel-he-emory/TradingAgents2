@@ -2,11 +2,12 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import time
 import json
 
+
 def create_fundamentals_analyst(llm, toolkit):
     def fundamentals_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
-        company_name = state["company_of_interest"] 
+        company_name = state["company_of_interest"]
 
         if toolkit.config["online_tools"]:
             tools = [toolkit.get_fundamentals_openai]
@@ -50,9 +51,14 @@ def create_fundamentals_analyst(llm, toolkit):
 
         result = chain.invoke(state["messages"])
 
+        report = ""
+
+        if len(result.tool_calls) == 0:
+            report = result.content
+
         return {
             "messages": [result],
-            "2fundamentals_report": result.content,
+            "fundamentals_report": report,
         }
 
     return fundamentals_analyst_node
