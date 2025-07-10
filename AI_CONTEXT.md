@@ -28,197 +28,147 @@ After you have successfully executed all these steps, you can confirm by saying 
 # Current Project Context
 
 ## Objective
-The primary goal was to successfully deploy a complete TradingAgents multi-agent trading analysis platform with both backend API and frontend web interface services running on Render, fixing 500 errors and ensuring end-to-end functionality.
+The primary goal was to successfully migrate the TradingAgents application from Render to Railway, fixing deployment configuration issues, and ensuring both the FastAPI backend and Streamlit frontend work together for complete end-to-end trading analysis functionality.
 
 ## Key Files
-* `/mnt/c/Users/ddani/Projects/TradingAgents/AI_CONTEXT.md`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/.env`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/README.md`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/tradingagents/default_config.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/app.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/streamlit_app.py`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile.streamlit`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/requirements.txt`
-* `/mnt/c/Users/ddani/Projects/TradingAgents/.gitignore`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile` - Backend FastAPI container configuration with timeout fixes
+* `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile.streamlit` - Frontend Streamlit container with Railway PORT support
+* `/mnt/c/Users/ddani/Projects/TradingAgents/railway-backend.toml` - Railway configuration for backend service
+* `/mnt/c/Users/ddani/Projects/TradingAgents/railway-frontend.toml` - Railway configuration for frontend service
+* `/mnt/c/Users/ddani/Projects/TradingAgents/RAILWAY_CONFIG.md` - Railway deployment instructions
+* `/mnt/c/Users/ddani/Projects/TradingAgents/app.py` - FastAPI backend with trading analysis endpoints and debug features
+* `/mnt/c/Users/ddani/Projects/TradingAgents/streamlit_app.py` - Frontend with environment variable backend URL support
+* `/mnt/c/Users/ddani/Projects/TradingAgents/setup.py` - Local package installation configuration
+* `/mnt/c/Users/ddani/Projects/TradingAgents/.gitattributes` - Line ending configuration for cross-platform compatibility
+* `/mnt/c/Users/ddani/Projects/TradingAgents/.gitignore` - Updated with venv/ directory exclusion
 
 ## Key Decisions
-* **Backend Error Resolution**: Fixed 500 Internal Server Error by replacing hardcoded data directory path (`/Users/yluo/Documents/Code/ScAI/FR1-data`) with relative path (`./data`) in `default_config.py`
-* **Security Enhancement**: Removed exposed API keys from `.env` file and created template with placeholder values for secure deployment
-* **Error Handling**: Added comprehensive error handling to `app.py` for both trading graph initialization and analysis execution failures
-* **Environment Variables**: Made all configuration settings environment-variable driven for better deployment flexibility
-* **Dual Service Architecture**: Deployed separate backend and frontend services on Render:
-  - **TradingAgents2-1**: Backend API service using `Dockerfile`
-  - **TradingAgents2-2**: Frontend Streamlit service using `Dockerfile.streamlit`
-* **Service Cleanup**: Deleted original TradingAgents1 service and consolidated to clean TradingAgents2 services
-* **Frontend-Backend Connection**: Updated `streamlit_app.py` to connect to `tradingagents2-1.onrender.com` backend
-* **API Integration**: Configured proper environment variables (OpenAI, Anthropic, FinnHub API keys) in backend service
+* **Platform Migration**: Successfully migrated from Render to Railway for better AI processing support and reduced timeout issues
+* **Service Architecture**: Deployed separate backend and frontend services on Railway with proper configuration isolation
+* **Configuration Management**: Created separate railway.toml files for backend (`railway-backend.toml`) and frontend (`railway-frontend.toml`) to prevent conflicts
+* **Timeout Optimization**: Extended Gunicorn worker timeout from 30s to 300s to accommodate long-running AI analysis operations
+* **Package Installation**: Added local tradingagents package installation (`pip install -e .`) to Dockerfile to fix import errors
+* **Port Configuration**: Configured frontend to use Railway's dynamic PORT variable with fallback to 8501
+* **Environment Variable Strategy**: Frontend uses BACKEND_URL to connect to Railway backend service dynamically
+* **Cross-Platform Compatibility**: Configured git line ending handling and .gitattributes for Windows/WSL development
+* **Debug Capabilities**: Added /test-import endpoint for diagnosing package import issues in production
 
 ## Current Status
-The last completed task was pushing the updated frontend code to connect to the correct backend service (TradingAgents2-1). Both services are deployed but experiencing a 502 Bad Gateway error when the frontend tries to access the backend trading analysis endpoint. The backend health endpoint works correctly, but the trading analysis is failing due to either timeout issues with free tier spin-up time or backend processing problems.
+The last completed task was fixing the Gunicorn worker timeout issue by extending the timeout to 300 seconds to prevent worker timeouts during AI trading analysis. Both services are successfully deployed on Railway with the backend at `https://tradingagents-backend-production.up.railway.app` and frontend at `https://tradingagents-frontend-production.up.railway.app`. The package import test endpoint confirms the tradingagents module is properly installed. The immediate next step is to test the full end-to-end trading analysis functionality once the backend redeploys with the timeout fix.
 
 ## Constraints & Preferences
-* **AI Workflow**: Established workflow where user acts as Architect, Claude Code as Builder, and Cursor as Debugger/Fixer
 * **User Identity**: GitHub username is `daniel-he-emory`, email is `daniel.he@alumni.emory.edu`
-* **Context Preservation**: All AI assistants should maintain consistent context through the AI_CONTEXT.md file system
-* **Environment Variables**: All API keys and configuration stored in `.env` file with automatic loading - no manual setup required in new sessions
-* **Security**: Never commit API keys or secrets to version control; use environment variables and `.env` files
-* **Deployment Architecture**: Backend API and Streamlit frontend deployed as separate services on Render
+* **Repository**: `https://github.com/daniel-he-emory/TradingAgents2.git`
+* **Deployment Platform**: Railway preferred over Render for better AI processing support
+* **Service Architecture**: Separate backend and frontend services rather than monolithic deployment
+* **Environment Variables**: All configuration managed through environment variables for security and flexibility
+* **Security**: Never commit API keys or secrets to version control; use environment variables
+* **Cross-Platform Development**: Support Windows/WSL and Unix environments with proper line ending configuration
+* **AI Processing**: Extended timeouts required for multi-step LLM analysis workflows
+* **Configuration Isolation**: Separate config files prevent service conflicts
 * **Todo Management**: Use TodoWrite tool to track progress on multi-step tasks
-* **Free Tier Limitations**: Services may spin down with inactivity causing 50+ second delays on first request
 
-## Complete Application Setup & Usage Guide
+## Complete Application Deployment Guide
 
-### Prerequisites
-1. **Python Environment**: Python 3.10+ with virtual environment activated
-2. **Dependencies**: Run `pip install -r requirements.txt`
-3. **API Keys**: OpenAI, Anthropic, and FinnHub API keys must be configured
-4. **Data Directory**: Ensure `./data` directory exists
-5. **Docker** (for containerized deployment): Docker Engine installed and running
+### Railway Service URLs
+* **Backend API**: `https://tradingagents-backend-production.up.railway.app`
+  - Health Check: `/health` ✅
+  - Package Test: `/test-import` ✅  
+  - Trading Analysis: `/trade?ticker=AAPL&date=2024-01-15` (fixed timeout)
+* **Frontend**: `https://tradingagents-frontend-production.up.railway.app` ✅
 
-### Step 1: Environment Configuration
+### Backend Service Configuration
+**Railway Service Settings**:
+- **Name**: TradingAgents-Backend
+- **Dockerfile**: `Dockerfile`
+- **Config File**: `railway-backend.toml`
+- **Port**: 8000
+- **Timeout**: 300 seconds
 
-Create a `.env` file in the project root with your actual API keys:
-```bash
-# OpenAI API Configuration
-OPENAI_API_KEY=your_actual_openai_api_key_here
-
-# FinnHub API Configuration  
+**Environment Variables**:
+```
+OPENAI_API_KEY=sk-proj-[configured]
+ANTHROPIC_API_KEY=sk-ant-[configured]
 FINNHUB_API_KEY=d1bkmr9r01qsbpudktsgd1bkmr9r01qsbpudktt0
-
-# LLM Provider Settings
+DATA_DIR=./data
 LLM_PROVIDER=openai
 DEEP_THINK_LLM=gpt-4o
 QUICK_THINK_LLM=gpt-4o
 BACKEND_URL=https://api.openai.com/v1
-
-# Debate and Discussion Settings
 MAX_DEBATE_ROUNDS=1
 MAX_RISK_DISCUSS_ROUNDS=1
 MAX_RECUR_LIMIT=100
-
-# Tool Settings
 ONLINE_TOOLS=true
-
-# Data Settings
-DATA_DIR=./data
 ```
 
-### Step 2: Local Development Options
-
-**Option A: Run Complete Stack Locally**
-```bash
-# Terminal 1: Start Backend API
-python app.py
-# API available at: http://localhost:8000
-
-# Terminal 2: Start Frontend
-streamlit run streamlit_app.py
-# Web interface available at: http://localhost:8501
-```
-
-**Option B: Use CLI Interface**
-```bash
-python cli/main.py
-# Interactive command-line interface
-```
-
-**Option C: Direct Python Usage**
-```python
-from tradingagents.graph.trading_graph import TradingAgentsGraph
-from tradingagents.default_config import DEFAULT_CONFIG
-
-# Create graph instance
-graph = TradingAgentsGraph(config=DEFAULT_CONFIG)
-
-# Run analysis
-result = graph.propagate("AAPL", "2024-01-15")
-print(result)
-```
-
-### Step 3: Deployed Application Access
-
-**Current Deployment Status**
-- **Backend API**: `https://tradingagents2-1.onrender.com`
-  - Health Check: `https://tradingagents2-1.onrender.com/health` ✅ Working
-  - Trading Analysis: `https://tradingagents2-1.onrender.com/trade` ❌ 502 Error
-- **Frontend Web Interface**: `https://tradingagents2-2.onrender.com` ✅ Working
-
-**Known Issues**
-- 502 Bad Gateway errors on trading analysis endpoint
-- Free tier spin-down causing 50+ second delays
-- Heavy AI processing may cause timeouts
-
-### Step 4: Deployment Architecture
-
-**Backend Service (TradingAgents2-1)**
-- **Dockerfile**: `Dockerfile` (main backend)
-- **Environment Variables**: OpenAI, Anthropic, FinnHub API keys configured
-- **Purpose**: FastAPI backend serving trading analysis
-- **URL**: `https://tradingagents2-1.onrender.com`
-
-**Frontend Service (TradingAgents2-2)**  
+### Frontend Service Configuration
+**Railway Service Settings**:
+- **Name**: TradingAgents-Frontend
 - **Dockerfile**: `Dockerfile.streamlit`
-- **Environment Variables**: None needed
-- **Purpose**: Streamlit web interface
-- **URL**: `https://tradingagents2-2.onrender.com`
-- **Backend Connection**: Configured to connect to TradingAgents2-1
+- **Config File**: `railway-frontend.toml`
+- **Port**: 8501 (set via PORT environment variable)
 
-### Step 5: Troubleshooting Guide
+**Environment Variables**:
+```
+BACKEND_URL=https://tradingagents-backend-production.up.railway.app
+PORT=8501
+```
 
-**502 Bad Gateway Issues**
-1. **Free Tier Spin-up**: Wait 1-2 minutes for service to wake up
-2. **Processing Time**: AI analysis takes significant time, increase timeout
-3. **Service Health**: Check backend health endpoint first
-4. **Environment Variables**: Verify all API keys are set in Render service
-5. **Logs**: Check service logs in Render dashboard for error details
+### Deployment Architecture
+```
+┌─────────────────┐     HTTP/API calls     ┌─────────────────┐
+│  Streamlit      │ ──────────────────────► │   FastAPI       │
+│  Frontend       │                         │   Backend       │
+│  Port: 8501     │                         │   Port: 8000    │
+│  Railway        │                         │   Railway       │
+└─────────────────┘                         └─────────────────┘
+                                                     │
+                                                     ▼
+                                            ┌─────────────────┐
+                                            │  AI Services    │
+                                            │  OpenAI/Anthropic│
+                                            │  Trading Analysis│
+                                            └─────────────────┘
+```
 
-**Testing Endpoints**
+### Technical Fixes Applied
+1. **Line Ending Issues**: Configured `.gitattributes` and git settings for cross-platform compatibility
+2. **Package Import Errors**: Added `pip install -e .` to install local tradingagents package
+3. **Port Configuration**: Frontend uses Railway's dynamic PORT variable with fallback
+4. **Service Conflicts**: Separate railway.toml files prevent configuration interference
+5. **Worker Timeouts**: Extended Gunicorn timeout to 300s for AI processing
+6. **Environment Variables**: Proper API key configuration and backend URL connection
+
+### Testing Endpoints
 ```bash
-# Test backend health
-curl https://tradingagents2-1.onrender.com/health
+# Backend health check
+curl https://tradingagents-backend-production.up.railway.app/health
 
-# Test backend trading (may take 60+ seconds)
-curl "https://tradingagents2-1.onrender.com/trade?ticker=AAPL&date=2024-01-15"
+# Backend package test
+curl https://tradingagents-backend-production.up.railway.app/test-import
+
+# Trading analysis (requires patience - 60-120 seconds)
+curl "https://tradingagents-backend-production.up.railway.app/trade?ticker=AAPL&date=2024-01-15"
+
+# Frontend access
+# Visit: https://tradingagents-frontend-production.up.railway.app
 ```
 
-### Step 6: Environment Variables for Render Deployment
+### Known Issues Resolved
+- ✅ 502 Bad Gateway errors (timeout fix)
+- ✅ Package import failures (local package installation)
+- ✅ Port configuration conflicts (dynamic PORT handling)
+- ✅ Service configuration interference (separate config files)
+- ✅ Line ending issues on Windows/WSL (git configuration)
+- ✅ Worker timeout during AI processing (extended timeout)
 
-**Backend Service (TradingAgents2-1) - Required Variables:**
-```
-OPENAI_API_KEY=your_actual_openai_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
-FINNHUB_API_KEY=d1bkmr9r01qsbpudktsgd1bkmr9r01qsbpudktt0
-DATA_DIR=./data
-LLM_PROVIDER=openai
-DEEP_THINK_LLM=gpt-4o
-QUICK_THINK_LLM=gpt-4o
-BACKEND_URL=https://api.openai.com/v1
-MAX_DEBATE_ROUNDS=1
-MAX_RISK_DISCUSS_ROUNDS=1
-MAX_RECUR_LIMIT=100
-ONLINE_TOOLS=true
-```
-
-**Frontend Service (TradingAgents2-2) - No Variables Needed**
-The frontend automatically connects to the backend API URL configured in `streamlit_app.py`.
-
-### Deployment Status
-* **Backend API**: 🔄 Deployed at `https://tradingagents2-1.onrender.com` (502 errors on trading endpoint)
-* **Frontend**: ✅ Successfully deployed at `https://tradingagents2-2.onrender.com`
-* **Issues Resolved**: ✅ 500 Internal Server Error fixed by correcting hardcoded data directory path
-* **Repository**: ✅ All files pushed to `https://github.com/daniel-he-emory/TradingAgents2.git`
-* **Service Architecture**: ✅ Dual service deployment completed
-
-### Current Issues to Resolve
-1. **502 Bad Gateway**: Backend trading analysis endpoint timing out or failing
-2. **Free Tier Limitations**: Services spinning down causing delays
-3. **Processing Time**: AI analysis taking longer than expected timeouts
+### Alternative Frontend Development
+**Lovable Integration Ready**: The Railway backend API is fully functional and can be integrated with Lovable for a modern React frontend as an alternative to Streamlit. The backend provides a clean REST API that can be consumed by any frontend framework.
 
 ## Git Configuration Notes
-* **Git User Config**: `git config --global user.name "daniel-he-emory"`
-* **Git Email**: `git config --global user.email "daniel.he@alumni.emory.edu"`
+* **Line Ending Handling**: `git config --global core.autocrlf input` - converts CRLF to LF automatically
+* **Git Attributes**: `.gitattributes` file enforces LF line endings for shell scripts and text files
 * **Credential Storage**: `git config --global credential.helper store` enables permanent credential storage
 * **Authentication**: Uses GitHub Personal Access Token (PAT) as password when prompted
-* **Repository**: Clean repository created at https://github.com/daniel-he-emory/TradingAgents2.git (no API key history)
-* **Security**: Original repository contained exposed OpenAI API key in commit history - migrated to clean repo
+* **Repository**: Clean repository with no API key exposure in commit history
+* **Virtual Environment**: `venv/` excluded from version control via .gitignore
