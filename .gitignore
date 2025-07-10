@@ -36,6 +36,7 @@ MANIFEST
 
 # IDE and environment folders
 .venv/
+venv/
 .claude/
 .vscode/
 .idea/
@@ -52,3 +53,4 @@ TOKEN_OPTIMIZATION_SUMMARY.md
 TRADING_AGENTS_GRAPH_SUMMARY.md
 Dockerfile.ui
 docker-compose.yml
+.env
