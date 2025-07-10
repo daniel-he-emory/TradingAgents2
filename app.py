@@ -153,6 +153,16 @@ async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": "Trading Agents API"}
 
+@app.get("/test-import")
+async def test_import():
+    """Test if tradingagents package can be imported."""
+    try:
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
+        from tradingagents.default_config import DEFAULT_CONFIG
+        return {"status": "success", "message": "TradingAgents package imported successfully"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
