@@ -28,12 +28,14 @@ After you have successfully executed all these steps, you can confirm by saying 
 # Current Project Context
 
 ## Objective
-The primary goal was to establish a robust, secure, and fully automated development environment for the TradingAgents multi-agent framework with persistent API key management and comprehensive AI assistant context preservation.
+The primary goal was to create a fully automated, zero-friction development environment for the TradingAgents multi-agent framework with persistent configuration, automatic startup, and comprehensive AI assistant context preservation.
 
 ## Key Files
 * `/mnt/c/Users/ddani/Projects/TradingAgents/AI_CONTEXT.md`
 * `/mnt/c/Users/ddani/Projects/TradingAgents/.env`
 * `/mnt/c/Users/ddani/Projects/TradingAgents/README.md`
+* `/mnt/c/Users/ddani/Projects/TradingAgents/startup.sh`
+* `~/.bashrc` (shell configuration with automation)
 * `/mnt/c/Users/ddani/Projects/TradingAgents/docker-compose.yml`
 * `/mnt/c/Users/ddani/Projects/TradingAgents/Dockerfile` (for the API service)
 * `/mnt/c/Users/ddani/Projects/TradingAgents/requirements.txt`
@@ -49,13 +51,16 @@ The primary goal was to establish a robust, secure, and fully automated developm
 * **Security Migration**: Created a new clean GitHub repository (TradingAgents2.git) after discovering exposed OpenAI API key in commit history.
 * **Environment Variables**: Configured secure storage of API keys in `.env` file with automatic loading via python-dotenv - no manual key entry required in new sessions.
 * **Complete API Configuration**: Set up both OpenAI and FinnHub API keys in `.env` file for persistent access.
+* **Full Shell Automation**: Configured ~/.bashrc for automatic virtual environment activation, project directory navigation, and startup script execution.
+* **Command Aliases**: Created convenient shortcuts (ta-cli, ta-api, ta-web, ta-test, ta-deps, ta-status, ta-push) for common operations.
+* **Startup Health Check**: Implemented startup.sh script that validates environment configuration and displays available commands.
 * **Documentation Enhancement**: Updated README.md to direct AI assistants to read AI_CONTEXT.md first for project understanding.
 * **Git Configuration**: Fully configured Git with user credentials, email, and credential helper for persistent authentication.
 * **Comprehensive Setup Documentation**: Added detailed environment setup requirements, prerequisites, and application entry points to AI_CONTEXT.md.
 * **Previous TradingAgents Decisions**: Native Docker Engine in WSL2, microservices architecture, Render for backend hosting, pip-tools for dependency management, and Gunicorn for production.
 
 ## Current Status
-The last completed task was finalizing the FinnHub API key configuration in the `.env` file. The development environment is now completely automated and self-sufficient - API keys are persistent across sessions, Git is configured, and comprehensive documentation ensures any AI assistant can immediately understand the project setup. The application is ready to run with all required configurations in place. The immediate next step is to debug the 500 Internal Server Error occurring on the deployed backend application on Render.
+The last completed task was implementing comprehensive shell automation including auto-activation of virtual environment, automatic project directory navigation, command aliases, and startup health checking. The development environment is now completely zero-friction - opening a new terminal automatically sets up the entire development context. The application is ready to run with all required configurations in place. The immediate next step is to debug the 500 Internal Server Error occurring on the deployed backend application on Render.
 
 ## Constraints & Preferences
 * **AI Workflow**: Established workflow where user acts as Architect, Claude Code as Builder, and Cursor as Debugger/Fixer.
@@ -63,7 +68,8 @@ The last completed task was finalizing the FinnHub API key configuration in the 
 * **Context Preservation**: All AI assistants should maintain consistent context through the AI_CONTEXT.md file system.
 * **Environment Variables**: All API keys and configuration stored in `.env` file with automatic loading - no manual setup required in new sessions.
 * **Security**: Never commit API keys or secrets to version control; use environment variables and `.env` files.
-* **Persistence**: Setup is designed to be permanent and self-sustaining across all future sessions.
+* **Zero-Friction Development**: Setup is designed to be completely automated with no manual steps required in new sessions.
+* **Command Shortcuts**: Use aliases (ta-cli, ta-api, ta-web, etc.) for quick access to common operations.
 
 ## Environment Setup Requirements
 
@@ -99,18 +105,29 @@ DATA_DIR=./data
 ```
 
 ### Prerequisites Before Running Application
-1. **Python Environment**: Python 3.10+ with virtual environment activated
-2. **Dependencies**: Run `pip install -r requirements.txt`
+1. **Python Environment**: Python 3.10+ with virtual environment activated (automated)
+2. **Dependencies**: Run `pip install -r requirements.txt` or use alias `ta-deps`
 3. **API Keys**: Both OpenAI and FinnHub API keys must be configured in `.env`
 4. **Environment Variables**: All required variables must be set in `.env` file
 5. **Data Directory**: Ensure `./data` directory exists or DATA_DIR points to valid location
 6. **Docker** (for containerized deployment): Docker Engine installed and running
 
-### Application Entry Points
-* **CLI**: `python cli/main.py` - Interactive command-line interface
-* **API Server**: `python app.py` - FastAPI backend server
-* **Streamlit Frontend**: `streamlit run streamlit_app.py` - Web interface
+### Application Entry Points & Aliases
+* **CLI**: `ta-cli` or `python cli/main.py` - Interactive command-line interface
+* **API Server**: `ta-api` or `python app.py` - FastAPI backend server
+* **Streamlit Frontend**: `ta-web` or `streamlit run streamlit_app.py` - Web interface
+* **Tests**: `ta-test` or `python test_trading_agents_graph.py` - Run test suite
+* **Dependencies**: `ta-deps` or `pip install -r requirements.txt` - Install dependencies
+* **Git Status**: `ta-status` or `git status` - Check repository status
+* **Quick Push**: `ta-push` - Add, commit, and push changes
 * **Direct Usage**: Import `tradingagents.graph.trading_graph.TradingAgentsGraph` for programmatic use
+
+### Automated Shell Configuration
+* **Virtual Environment**: Automatically activated on terminal startup
+* **Project Directory**: Automatically navigated to on terminal startup
+* **Startup Health Check**: Automatically runs startup.sh to validate environment
+* **Command Aliases**: All shortcuts automatically available
+* **No Manual Setup**: Zero manual steps required for new sessions
 
 ## Git Configuration Notes
 * **Git User Config**: `git config --global user.name "daniel-he-emory"`
