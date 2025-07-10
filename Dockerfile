@@ -21,5 +21,5 @@ RUN pip install -e .
 # Expose FastAPI port
 EXPOSE 8000
 
-# Run the API
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "2", "-b", "0.0.0.0:8000", "app:app"] 
+# Run the API with extended timeout for AI processing
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "2", "-b", "0.0.0.0:8000", "--timeout", "300", "--keep-alive", "5", "app:app"] 
