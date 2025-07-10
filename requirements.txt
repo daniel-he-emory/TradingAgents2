@@ -1,0 +1,64 @@
+# Core Backend
+fastapi>=0.104.1
+uvicorn>=0.24.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+gunicorn
+
+# Core Frontend
+streamlit>=1.0.0
+typer>=0.16.0
+rich>=14.0.0
+questionary>=2.1.0
+chainlit>=2.5.5
+
+# LLM & AI
+anthropic>=0.54.0
+openai>=1.90.0
+langchain-core>=0.3.0
+langchain-openai>=0.3.23
+langchain-anthropic>=0.3.15
+langchain-google-genai>=2.1.5
+langchain-experimental>=0.3.4
+langgraph>=0.4.8
+
+# Data & Trading
+pandas>=2.3.0
+numpy>=2.0.0
+yfinance>=0.2.63
+stockstats>=0.6.5
+finnhub-python>=2.4.23
+backtrader>=1.9.78.123
+akshare>=1.16.98
+tushare>=1.4.21
+eodhd>=1.0.32
+
+# Data Storage & Vector DB
+redis>=6.2.0
+chromadb>=1.0.12
+peewee>=3.18.0
+
+# Web Scraping & APIs
+beautifulsoup4>=4.13.0
+requests>=2.32.4
+httpx>=0.28.0
+praw>=7.8.1
+feedparser>=6.0.11
+parsel>=1.10.0
+
+# Data Processing & Utilities
+python-dateutil>=2.9.0
+pytz>=2025.2
+tqdm>=4.67.1
+tenacity>=9.0.0
+typing-extensions>=4.14.0
+
+# Visualization
+matplotlib>=3.10.0
+
+# Monitoring & Observability (Optional - can be removed if not needed)
+# traceloop-sdk>=0.40.12  # Temporarily disabled due to OpenTelemetry version conflicts
+
+# Build Tools
+setuptools>=80.9.0
+wheel>=0.42.0

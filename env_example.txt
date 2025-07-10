@@ -1,0 +1,31 @@
+# TradingAgents Environment Configuration
+# Copy this file to .env and update with your actual values
+
+# LLM Provider (openai, anthropic, google)
+LLM_PROVIDER=openai
+
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+DEEP_THINK_LLM=gpt-4o
+QUICK_THINK_LLM=gpt-4o
+BACKEND_URL=https://api.openai.com/v1
+
+# Anthropic Configuration (if using Anthropic)
+# ANTHROPIC_API_KEY=your_anthropic_api_key_here
+# DEEP_THINK_LLM=claude-3-5-sonnet-20241022
+# QUICK_THINK_LLM=claude-3-haiku-20240307
+# BACKEND_URL=https://api.anthropic.com
+
+# Google Configuration (if using Google)
+# GOOGLE_API_KEY=your_google_api_key_here
+# DEEP_THINK_LLM=gemini-1.5-pro
+# QUICK_THINK_LLM=gemini-1.5-flash
+
+# Token Usage Optimization Settings
+MAX_DEBATE_ROUNDS=1
+MAX_RISK_DISCUSS_ROUNDS=1
+MAX_RECUR_LIMIT=50
+
+# Data and Tool Settings
+DATA_DIR=/path/to/your/data/directory
+ONLINE_TOOLS=true 
