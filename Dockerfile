@@ -15,6 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the code
 COPY . .
 
+# Install the local tradingagents package
+RUN pip install -e .
+
 # Expose FastAPI port
 EXPOSE 8000
 
