@@ -101,16 +101,36 @@ async def get_trade(
         
         # Execute trading analysis with error handling
         try:
-            result = ta.propagate(
-                ticker,
-                date,
-                deep_think_model=deep_think_model,
-                quick_think_model=quick_think_model,
-                debate_rounds=debate_rounds,
-            )
+            # Note: propagate() only takes ticker and date
+            # Model and round configuration must be done at graph initialization
+            final_state, processed_signal = ta.propagate(ticker, date)
+
+            # Extract data from final_state
+            result = {
+                "recommendation": final_state.get("final_trade_decision", ""),
+                "processed_signal": processed_signal,
+                "reasoning": final_state.get("investment_plan", ""),
+                "analyst_reports": {
+                    "market_report": final_state.get("market_report", ""),
+                    "news_report": final_state.get("news_report", ""),
+                    "sentiment_report": final_state.get("sentiment_report", ""),
+                    "technical_report": final_state.get("fundamentals_report", ""),
+                },
+                "debate_logs": [],  # Would need to parse from investment_debate_state
+                "risk_management": {
+                    "risky_summary": final_state.get("risk_debate_state", {}).get("risky_history", ""),
+                    "safe_summary": final_state.get("risk_debate_state", {}).get("safe_history", ""),
+                    "neutral_summary": final_state.get("risk_debate_state", {}).get("neutral_history", ""),
+                    "judge_decision": final_state.get("risk_debate_state", {}).get("judge_decision", ""),
+                    "final_recommendation": final_state.get("final_trade_decision", ""),
+                },
+                "risky_summary": final_state.get("risk_debate_state", {}).get("risky_history", ""),
+                "safe_summary": final_state.get("risk_debate_state", {}).get("safe_history", ""),
+                "neutral_summary": final_state.get("risk_debate_state", {}).get("neutral_history", ""),
+            }
         except Exception as e:
             raise HTTPException(
-                status_code=500, 
+                status_code=500,
                 detail=f"Trading analysis failed: {str(e)}"
             )
         

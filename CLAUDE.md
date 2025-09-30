@@ -8,11 +8,23 @@ This is a research framework for LLM-powered multi-agent financial trading analy
 
 **Repository**: https://github.com/daniel-he-emory/TradingAgents2.git
 **User**: daniel-he-emory (daniel.he@alumni.emory.edu)
-**Status**: ✅ All tests passing (14/14), fully functional
+**Status**: ✅ All tests passing (14/14), fully functional, dependencies installed, FastAPI running
 
-## Recent Major Fixes (Current State)
+## Current Session Summary
 
-The codebase has been recently stabilized with the following critical fixes:
+### Objective
+Successfully completed end-to-end setup of TradingAgents2 framework with all fixes applied, dependencies installed, and FastAPI backend running.
+
+### What Was Accomplished
+1. ✅ Fixed all test failures (14/14 passing)
+2. ✅ Installed 200+ dependencies to venv
+3. ✅ Fixed FastAPI app.py to properly call `propagate()` method
+4. ✅ Started FastAPI backend on http://localhost:8000
+5. ✅ Verified all core dependencies working
+6. ✅ Created comprehensive documentation (CLAUDE.md, FIXES_APPLIED.md, NEXT_STEPS.md)
+7. ✅ Removed AI_CONTEXT.md after migrating content here
+
+### Critical Fixes Applied
 
 1. **ChromaDB Singleton Conflicts** - Implemented `get_shared_chroma_client()` in `memory.py` to prevent collection conflicts across multiple `FinancialSituationMemory` instances
 2. **Test Infrastructure** - Created `conftest.py` with global fixtures for ChromaDB cleanup between tests
@@ -20,6 +32,7 @@ The codebase has been recently stabilized with the following critical fixes:
 4. **Import Fixes** - Added `AnyMessage` import to `agent_states.py` to resolve LangGraph type hint errors
 5. **Dependency Issues** - Fixed matplotlib version (3.10.0→3.5.0) for Python 3.9 compatibility, added pytest/pytest-mock
 6. **Test Mocking** - Comprehensive mocking patterns in `test_trading_agents_graph.py` to prevent real API calls during testing
+7. **FastAPI Bug** - Fixed `app.py` to properly call `propagate(ticker, date)` instead of passing invalid parameters
 
 See `FIXES_APPLIED.md` and `NEXT_STEPS.md` for detailed documentation.
 
@@ -34,60 +47,76 @@ Previous deployment on Render was migrated to Railway with improved timeout hand
 ## Environment Setup
 
 ### Prerequisites
-- Python 3.9+ (requires virtual environment on macOS due to PEP 668)
-- OpenAI API key (required)
+- Python 3.9.6 (macOS system protected by PEP 668)
+- OpenAI API key (required) - **Already configured in .env**
 - FinnHub API key (optional, for enhanced market data)
 
-### Initial Setup
+### Dependencies Installation
+**Important**: Due to macOS PEP 668 protection, dependencies are installed to `./venv/lib/python3.9/site-packages` and accessed via PYTHONPATH.
+
 ```bash
-# Activate virtual environment (required on macOS)
-source venv/bin/activate
+# Install dependencies (already done!)
+python3 -m pip install -r requirements.txt --target ./venv/lib/python3.9/site-packages
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment (creates .env file)
-python setup_env.py
-
-# Verify setup
-python setup_env.py check
+# Set PYTHONPATH for all commands
+export PYTHONPATH=./venv/lib/python3.9/site-packages
 ```
 
 ### Environment Variables (.env)
+**Already configured** with OpenAI API key:
 ```bash
-LLM_PROVIDER=openai                    # or anthropic, google
-OPENAI_API_KEY=your_key_here          # Required
-DEEP_THINK_LLM=gpt-4o                 # Deep reasoning model
-QUICK_THINK_LLM=gpt-4o                # Fast operations model
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-proj-... (configured)
+DEEP_THINK_LLM=gpt-4o
+QUICK_THINK_LLM=gpt-4o
 BACKEND_URL=https://api.openai.com/v1
-MAX_DEBATE_ROUNDS=1                   # Bull/Bear debate iterations
-MAX_RISK_DISCUSS_ROUNDS=1             # Risk team iterations
-MAX_RECUR_LIMIT=50                    # Graph recursion limit
-ONLINE_TOOLS=true                     # Use real-time data vs cached
+MAX_DEBATE_ROUNDS=1
+MAX_RISK_DISCUSS_ROUNDS=1
+MAX_RECUR_LIMIT=50
+ONLINE_TOOLS=true
 ```
 
 ## Running the System
 
-### Development
+### FastAPI Backend
+**Currently running on http://localhost:8000**
+
 ```bash
-# Activate venv first
-source venv/bin/activate
+# Start server
+export PYTHONPATH=./venv/lib/python3.9/site-packages
+python3 app.py
 
-# FastAPI backend (port 8000)
-python app.py
-# or
+# Or with uvicorn
 uvicorn app:app --reload --port 8000
+```
 
-# Streamlit frontend (port 8501)
+**API Endpoints**:
+- `GET /` - API status
+- `GET /health` - Health check
+- `GET /trade?ticker=AAPL&date=2024-01-15` - Trading analysis
+
+**Example**:
+```bash
+curl 'http://localhost:8000/trade?ticker=AAPL&date=2024-01-15'
+```
+
+### Streamlit Frontend
+```bash
+export PYTHONPATH=./venv/lib/python3.9/site-packages
 streamlit run streamlit_app.py
+```
+Opens on http://localhost:8501
 
-# Interactive CLI
-python -m cli.main
+### Interactive CLI
+```bash
+export PYTHONPATH=./venv/lib/python3.9/site-packages
+python3 -m cli.main
 ```
 
 ### Testing
 ```bash
 # Run full test suite
+export PYTHONPATH=./venv/lib/python3.9/site-packages
 pytest test_trading_agents_graph.py -v
 
 # Run specific test class
@@ -131,7 +160,7 @@ The system uses LangGraph to orchestrate a stateful multi-agent workflow:
 **`tradingagents/graph/trading_graph.py`** - Main orchestrator
 - `TradingAgentsGraph`: Central class managing the workflow
 - `create_trading_agents_graph()`: Factory function for instantiation
-- `.propagate(ticker, date)`: Executes full analysis pipeline
+- `.propagate(ticker, date)`: Executes full analysis pipeline, returns `(final_state, processed_signal)` tuple
 - Initializes LLMs, memories, toolkits, and graph structure
 
 **`tradingagents/graph/setup.py`** - Graph construction
@@ -161,6 +190,12 @@ The system uses LangGraph to orchestrate a stateful multi-agent workflow:
 - `Toolkit`: Wraps market data APIs (YFinance, FinnHub, Reddit)
 - Online tools: Real-time data fetching
 - Offline tools: Cached data from TradingDB
+
+**`app.py`** - FastAPI backend
+- `TradingAgentsGraph` initialized once at startup
+- `/trade` endpoint calls `propagate(ticker, date)` and returns tuple `(final_state, processed_signal)`
+- Response built from `final_state` dictionary keys: `final_trade_decision`, `investment_plan`, `market_report`, etc.
+- **Fixed**: Properly unpacks tuple return value from `propagate()`
 
 ### Agent Initialization Pattern
 All agents follow this pattern:
@@ -233,24 +268,6 @@ for key, value in final_state.items():
     print(f"{key}: {value}")
 ```
 
-## API Interfaces
-
-### FastAPI (`app.py`)
-- `GET /`: Health check
-- `GET /trade?ticker=AAPL&date=2024-01-15`: Trading analysis
-- Optional params: `deep_think_model`, `quick_think_model`, `debate_rounds`
-- Returns: Full decision with analyst reports, debate logs, risk assessment
-
-### Streamlit (`streamlit_app.py`)
-- Web UI calling FastAPI backend
-- Displays: Price charts, analyst reports, debate history, risk analysis
-- Backend URL configurable via `BACKEND_URL` env var
-
-### CLI (`cli/main.py`)
-- Interactive questionary-based interface
-- Real-time progress display with Rich
-- Supports: Multiple tickers, custom dates, analyst selection
-
 ## Python API Usage
 
 ### Basic Usage
@@ -318,6 +335,17 @@ def agent_node(state: AgentState):
     }
 ```
 
+### FastAPI propagate() Return Value
+**Important**: `propagate()` returns a tuple `(final_state, processed_signal)`:
+```python
+final_state, processed_signal = ta.propagate(ticker, date)
+
+# Extract data from final_state dict
+recommendation = final_state["final_trade_decision"]
+market_report = final_state["market_report"]
+# etc.
+```
+
 ## Research vs Production
 
 **This is a research framework, not production trading software:**
@@ -347,9 +375,9 @@ def agent_node(state: AgentState):
 
 ### Python Environment
 - **Python 3.9.6** on macOS (system protected by PEP 668)
-- **Always use venv**: `source venv/bin/activate`
+- **Always set PYTHONPATH**: `export PYTHONPATH=./venv/lib/python3.9/site-packages`
 - Never use `--break-system-packages` flag
-- Install all packages within venv
+- Install all packages with `--target ./venv/lib/python3.9/site-packages`
 
 ### LLM Configuration
 - Default: OpenAI with gpt-4o for both deep and quick thinking
@@ -360,9 +388,9 @@ def agent_node(state: AgentState):
 ## Troubleshooting
 
 ### Import Errors
-- Ensure venv is activated: `source venv/bin/activate`
-- Check Python version: `python --version` (need 3.9+)
-- Reinstall dependencies: `pip install -r requirements.txt`
+- Set PYTHONPATH: `export PYTHONPATH=./venv/lib/python3.9/site-packages`
+- Check Python version: `python3 --version` (need 3.9+)
+- Reinstall dependencies: `python3 -m pip install -r requirements.txt --target ./venv/lib/python3.9/site-packages`
 
 ### ChromaDB Collection Errors
 - Tests automatically cleanup via `conftest.py` fixtures
@@ -374,14 +402,21 @@ def agent_node(state: AgentState):
 - Enable caching with `online_tools=false`
 
 ### macOS System Python Protection
-- Always use venv: `source venv/bin/activate`
+- Always set PYTHONPATH before running any command
 - Don't use `--break-system-packages`
+- Install to venv/lib/python3.9/site-packages with --target flag
 
 ### Test Failures
 - Verify conftest.py exists and has ChromaDB cleanup fixtures
 - Check that all mocks are properly configured in test files
 - Ensure AnyMessage is imported in agent_states.py
 - Run with `-vv` flag for detailed output
+
+### FastAPI propagate() Errors
+- Remember: `propagate()` only takes `(ticker, date)` parameters
+- Returns tuple: `(final_state, processed_signal)`
+- Extract data from `final_state` dictionary
+- Model/round configuration must be done at graph initialization
 
 ## Citation
 
